@@ -9,5 +9,10 @@ If you don't have devtools installed yet, you can install it via:
 ```R
 install.packages("devtools")
 ```
+After installing, refer to the package help files for more information on how to use the package:
+```R
+library(bitscale)
+help(package = "bitscale")
+```
 
-For more information about the bit scale, refer to [Wallmark et. al. (2024)](https://arxiv.org/abs/2410.01480).
+For more information about bit scales, refer to [Wallmark et. al. (2024)](https://arxiv.org/abs/2410.01480).
