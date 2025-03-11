@@ -1,20 +1,25 @@
 Package: bitscale
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Convert the theta scale of an item response theory (IRT) model into a bit scale.
 Version: 0.1.0
 Authors@R: c(
     person(
-      "Jane", "Doe",
-      email = "jane@example.com",
+      "Joakim", "Wallmark",
+      email = "wallmark.joakim@gmail.com",
       role = c("aut", "cre")
     )
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
+Description: This package converts the theta scale from an IRT model (fitted using the mirt package) into a bit scale.
+    It implements the bit scale transformation as introduced by Wallmark et al. (2024).
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.1
+Imports:
+    mirt,
+    ggplot2
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+URL: https://github.com/joakimwallmark/bitscale
+BugReports: https://github.com/joakimwallmark/bitscale/issues

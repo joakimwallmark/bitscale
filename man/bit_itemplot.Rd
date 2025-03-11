@@ -12,7 +12,7 @@ bit_itemplot(model, item, bit_grid_size = 10000)
 \item{item}{A single numeric value indicating which item to plot.}
 
 \item{bit_grid_size}{An integer specifying the internal grid size for
-\code{\link{bit_scores}}. A larger value typically produces more accurate bit
+\code{\link{bit_scores}}. A larger value produces more accurate bit
 score estimates. Default is 10000.}
 }
 \value{
@@ -20,7 +20,7 @@ A ggplot2 object displaying the item response curves on the bit scale.
 }
 \description{
 This function takes a fitted unidimensional mirt model object and plots the item
-response curves (category probability curves) for a given item **on the bit score scale**.
+response curves (category probability curves) for a given item on the bit scale.
 }
 \examples{
 \dontrun{
