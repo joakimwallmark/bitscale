@@ -63,11 +63,11 @@ bit_itemplot <- function(
   bit_vals <- as.vector(bit_vals)
   prob_df <- data.frame(
     bit = rep(bit_vals, times = ncol(probs)),
-    response = factor(rep(seq_len(ncol(probs)), each = length(theta_to_plot))),
+    response = factor(rep(seq_len(ncol(probs)) - 1, each = length(theta_to_plot))),
     probability = as.vector(probs)
   )
 
-  p <- ggplot(prob_df, aes(x = .data$bit, y = .data$probability, color = .data$response)) +
+  p <- ggplot(prob_df, aes(x = bit, y = probability, color = response)) +
     geom_line(size = 1.1) +  # slightly thicker lines
     scale_x_continuous(
       limits = range(prob_df$bit),

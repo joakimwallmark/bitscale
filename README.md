@@ -12,6 +12,8 @@ install.packages("devtools")
 After installing, refer to the package help files for more information on how to use the package:
 ```R
 library(bitscale)
+?bit_scores
+?bit_itemplot
 help(package = "bitscale")
 ```
 

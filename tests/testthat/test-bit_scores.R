@@ -1,4 +1,3 @@
-library(testthat)
 library(mirt)
 
 # Create a small example mirt model for testing
@@ -21,6 +20,14 @@ test_that("bit_scores returns a numeric matrix for input thetas", {
   result <- bit_scores(mirt_model, thetas, return_grid = FALSE)
   expect_true(is.matrix(result))
   expect_equal(nrow(result), nrow(thetas))
+  expect_equal(ncol(result), 1)
+})
+
+test_that("bit_scores returns a numeric matrix with SEs", {
+  result <- bit_scores(mirt_model, thetas, return_grid = FALSE, compute_SEs = TRUE)
+  expect_true(is.matrix(result))
+  expect_equal(nrow(result), nrow(thetas))
+  expect_equal(ncol(result), 2)
 })
 
 test_that("bit_scores errors for non-mirt model", {

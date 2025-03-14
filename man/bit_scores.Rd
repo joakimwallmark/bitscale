@@ -8,6 +8,7 @@ bit_scores(
   model,
   thetas,
   items = 1:extract.mirt(model, "nitems"),
+  compute_SEs = FALSE,
   grid_size = 10000,
   return_grid = FALSE
 )
@@ -18,6 +19,8 @@ bit_scores(
 \item{thetas}{A one column matrix with theta scores. Typically returned from the mirt::fscores method.}
 
 \item{items}{A numeric vector indicating which items to use for computation. By default, all items are used.}
+
+\item{compute_SEs}{A logical indicating whether to compute standard errors for the bit scores. Default is FALSE.}
 
 \item{grid_size}{An integer specifying the size of the theta grid used for bit score computation. A higher value leads to improved accuracy. Default is 10000.}
 
@@ -44,6 +47,9 @@ thetas <- fscores(mirt_model, full.scores.SE = FALSE)
 # Compute the bit scores
 bit <- bit_scores(mirt_model, thetas)
 hist(bit, main = 'Histogram of bit scores', xlab = 'Bits')
+# Compute the bit scores with associated MLE SEs
+bit <- bit_scores(mirt_model, thetas, compute_SEs=TRUE)
+plot(bit, main = 'Bit scores with MLE SEs', xlab = 'Bits', ylab = 'SEs', ylim = c(0, max(bit[, 2])))
 }
 
 }

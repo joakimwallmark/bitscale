@@ -7,6 +7,7 @@
 #' @param model An fitted mirt model object from the mirt package
 #' @param thetas A one column matrix with theta scores. Typically returned from the mirt::fscores method.
 #' @param items A numeric vector indicating which items to use for computation. By default, all items are used.
+#' @param compute_SEs A logical indicating whether to compute standard errors for the bit scores. Default is FALSE.
 #' @param grid_size An integer specifying the size of the theta grid used for bit score computation. A higher value leads to improved accuracy. Default is 10000.
 #' @param return_grid Whether or not to return the bit score for each value in the grid used for computation or only the bit scores for the input thetas. Default is FALSE.
 #'
@@ -27,6 +28,9 @@
 #' # Compute the bit scores
 #' bit <- bit_scores(mirt_model, thetas)
 #' hist(bit, main = 'Histogram of bit scores', xlab = 'Bits')
+#' # Compute the bit scores with associated MLE SEs
+#' bit <- bit_scores(mirt_model, thetas, compute_SEs=TRUE)
+#' plot(bit, main = 'Bit scores with MLE SEs', xlab = 'Bits', ylab = 'SEs', ylim = c(0, max(bit[, 2])))
 #' }
 #'
 #' @export
@@ -34,6 +38,7 @@ bit_scores <- function(
     model,
     thetas,
     items = 1:extract.mirt(model, "nitems"),
+    compute_SEs = FALSE,
     grid_size = 10000,
     return_grid = FALSE
 ) {
@@ -52,7 +57,9 @@ bit_scores <- function(
   if (!is.logical(return_grid)) {
     stop("The 'return_grid' argument must be a logical.")
   }
-
+  # Replace +Inf with +7.9 to avoid errors with NaN returned from the probtrace function
+  # original_thetas = thetas
+  # thetas[thetas == Inf] <- -10.1
   theta_grid <- setdiff(seq(-10, 10, length.out = grid_size), thetas) |> # remove potential duplicates from grid
     c(thetas) |> # merge with sample thetas
     sort()
@@ -73,6 +80,7 @@ bit_scores <- function(
     }
   }
   if (return_grid) {
+    # mat <- as.matrix(cbind(theta = original_thetas, bit_score = bit_scores))
     mat <- as.matrix(cbind(theta = theta_grid, bit_score = bit_scores))
     colnames(mat) <- c("theta", "bit_score")
     return(mat)
@@ -82,6 +90,12 @@ bit_scores <- function(
     ordered_bit_scores <- bit_scores[matching_indices]
     # Order the results based on the original order of the 'thetas' argument
     order_vec <- order(order(thetas))
-    return(as.matrix(ordered_bit_scores[order_vec]))
+    return_matrix <- as.matrix(ordered_bit_scores[order_vec])
+    if (compute_SEs) {
+      bit_score_fisher_info <- bit_score_information(model, thetas, bit_scale_items = items)
+      return_matrix <- cbind(return_matrix, sqrt(1/bit_score_fisher_info))
+    }
+    return(return_matrix)
   }
 }
+
