@@ -13,7 +13,7 @@ After installing, refer to the package help files for more information on how to
 ```R
 library(bitscale)
 ?bit_scores
-?bit_itemplot
+?bit_plot_item
 help(package = "bitscale")
 ```
 
