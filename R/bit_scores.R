@@ -4,10 +4,9 @@
 #'
 #' @importFrom mirt extract.mirt extract.item probtrace
 #'
-#' @param model An fitted mirt model object from the mirt package
-#' @param thetas A one column matrix with theta scores. Typically returned from the mirt::fscores method.
+#' @param model An fitted mirt model object from the mirt package.
+#' @param theta A vector or matrix with theta scores from which to compute bit scores. Typically the matrix returned from the mirt::fscores method. If a second column is present, it is assumed to be the standard errors of the theta scores and bit score standard errors are computed.
 #' @param items A numeric vector indicating which items to use for computation. By default, all items are used.
-#' @param compute_SEs A logical indicating whether to compute standard errors for the bit scores. Default is FALSE.
 #' @param grid_size An integer specifying the size of the theta grid used for bit score computation. A higher value leads to improved accuracy. Default is 10000.
 #' @param return_grid Whether or not to return the bit score for each value in the grid used for computation or only the bit scores for the input thetas. Default is FALSE.
 #'
@@ -24,29 +23,31 @@
 #' data <- simdata(a, d, 1000, itemtype = '2PL')
 #' # Fit the model and compute theta scores
 #' mirt_model <- mirt(data, 1)
-#' thetas <- fscores(mirt_model, full.scores.SE = FALSE)
 #' # Compute the bit scores
+#' thetas <- fscores(mirt_model, full.scores.SE = FALSE)
 #' bit <- bit_scores(mirt_model, thetas)
-#' hist(bit, main = 'Histogram of bit scores', xlab = 'Bits')
-#' # Compute the bit scores with associated MLE SEs
-#' bit <- bit_scores(mirt_model, thetas, compute_SEs=TRUE)
-#' plot(bit, main = 'Bit scores with MLE SEs', xlab = 'Bits', ylab = 'SEs', ylim = c(0, max(bit[, 2])))
+#' # Compute the bit scores with standard errors
+#' thetas <- fscores(mirt_model, method="ML", full.scores.SE = TRUE)
+#' bit_with_se <- bit_scores(mirt_model, thetas)
 #' }
 #'
 #' @export
 bit_scores <- function(
     model,
-    thetas,
+    theta,
     items = 1:extract.mirt(model, "nitems"),
-    compute_SEs = FALSE,
     grid_size = 10000,
     return_grid = FALSE
 ) {
+  compute_se <- FALSE
   if (!"SingleGroupClass" %in% class(model)) {
     stop("The model object must be a fitted mirt model object.")
   }
   if (model@Model$model != 1) {
     stop("The model must be unidimensional (1 factor model).")
+  }
+  if (!is.numeric(theta) && !is.matrix(theta)) {
+    stop("The 'thetas' argument must be a numeric vector or a one/two column matrix.")
   }
   if (!is.numeric(items)) {
     stop("The 'items' argument must be a numeric vector.")
@@ -57,11 +58,19 @@ bit_scores <- function(
   if (!is.logical(return_grid)) {
     stop("The 'return_grid' argument must be a logical.")
   }
-  # Replace +Inf with +7.9 to avoid errors with NaN returned from the probtrace function
-  # original_thetas = thetas
-  # thetas[thetas == Inf] <- -10.1
-  theta_grid <- setdiff(seq(-10, 10, length.out = grid_size), thetas) |> # remove potential duplicates from grid
-    c(thetas) |> # merge with sample thetas
+  if (is.matrix(theta)) {
+    if (ncol(theta) == 2) {
+      compute_se <- TRUE
+      theta_se <- theta[, 2]
+    }
+    theta <- theta[, 1]
+  }
+  else {
+    theta <- c(theta)
+  }
+
+  theta_grid <- setdiff(seq(-10, 10, length.out = grid_size), theta) |> # remove potential duplicates from grid
+    c(theta) |> # merge with sample thetas
     sort()
   theta_grid[1] <- -Inf
   theta_grid[length(theta_grid)] <- Inf
@@ -80,20 +89,20 @@ bit_scores <- function(
     }
   }
   if (return_grid) {
-    # mat <- as.matrix(cbind(theta = original_thetas, bit_score = bit_scores))
     mat <- as.matrix(cbind(theta = theta_grid, bit_score = bit_scores))
     colnames(mat) <- c("theta", "bit_score")
     return(mat)
   } else {
     # Extract the entropy scores from the grid
-    matching_indices <- which(theta_grid %in% thetas)
+    matching_indices <- which(theta_grid %in% theta)
     ordered_bit_scores <- bit_scores[matching_indices]
     # Order the results based on the original order of the 'thetas' argument
-    order_vec <- order(order(thetas))
+    order_vec <- order(order(theta))
     return_matrix <- as.matrix(ordered_bit_scores[order_vec])
-    if (compute_SEs) {
-      bit_score_fisher_info <- bit_score_information(model, thetas, bit_scale_items = items)
-      return_matrix <- cbind(return_matrix, sqrt(1/bit_score_fisher_info))
+
+    if (compute_se) {
+      bit_score_gradient <- bit_score_gradient(model, theta, items)
+      return_matrix <- cbind(return_matrix, theta_se * bit_score_gradient)
     }
     return(return_matrix)
   }

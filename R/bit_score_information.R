@@ -1,9 +1,9 @@
 #' Approximate the bit score Fisher information for a given mirt model at the bit scale locations corresponding to the supplied theta scores.
 #'
-#' @importFrom mirt extract.mirt probtrace extract.item testinfo iteminfo
+#' @importFrom mirt extract.mirt extract.item testinfo iteminfo
 #'
 #' @param model An fitted mirt model object from the mirt package
-#' @param thetas A one column matrix with theta scores. Typically returned from the mirt::fscores method.
+#' @param theta A vector or matrix with theta scores. Typically the matrix returned from the mirt::fscores method.
 #' @param item If provided, the information provided by the specified item is computed as opposed to all items.
 #' @param bit_scale_items A numeric vector indicating which items to use for bit score computation. By default, all items are used.
 #'
@@ -20,17 +20,17 @@
 #' data <- simdata(a, d, 1000, itemtype = '2PL')
 #' # Fit the model and compute theta scores
 #' mirt_model <- mirt(data, 1)
-#' thetas <- fscores(mirt_model, full.scores.SE = FALSE)
+#' theta <- fscores(mirt_model, full.scores.SE = FALSE)
 #' # Compute the bit score test information
-#' test_info <- bit_score_information(mirt_model, thetas)
+#' test_info <- bit_score_information(mirt_model, theta)
 #' # Compute the bit score item information for item 3
-#' item_info <- bit_score_information(mirt_model, thetas, item = 3)
+#' item_info <- bit_score_information(mirt_model, theta, item = 3)
 #' }
 #'
 #' @export
 bit_score_information <- function(
     model,
-    thetas,
+    theta,
     item = NULL,
     bit_scale_items = 1:extract.mirt(model, "nitems")
 ) {
@@ -44,19 +44,12 @@ bit_score_information <- function(
     stop("The 'bit_scale_items' argument must be a numeric vector.")
   }
 
-  squared_entropy_deriv_sum <- 0
-  for (bit_scale_item in bit_scale_items) {
-    item_deriv_list <- mirt:::DerivTheta(model@ParObjects$pars[[bit_scale_item]], thetas)$grad
-    item_derivs <- do.call(cbind, item_deriv_list)
-    item_probs <- probtrace(extract.item(model, bit_scale_item), Theta = thetas)
-    item_entropy_derivs <- rowSums((log(item_probs) + 1) * item_derivs)
-    squared_entropy_deriv <- item_entropy_derivs ** 2
-    squared_entropy_deriv_sum <- squared_entropy_deriv_sum + squared_entropy_deriv
-  }
+  theta <- matrix(theta)
+  bit_score_deriv <- bit_score_gradient(model, theta, bit_scale_items)
   if (!is.null(item)) {
-    fisher_info <- iteminfo(extract.item(model, item), Theta = thetas) / squared_entropy_deriv_sum
+    fisher_info <- iteminfo(extract.item(model, item), Theta = theta) / bit_score_deriv^2
   } else {
-    fisher_info <- testinfo(model, thetas) / squared_entropy_deriv_sum
+    fisher_info <- testinfo(model, theta) / bit_score_deriv^2
   }
   return(fisher_info)
 }

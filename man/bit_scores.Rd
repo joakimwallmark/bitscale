@@ -6,21 +6,18 @@
 \usage{
 bit_scores(
   model,
-  thetas,
+  theta,
   items = 1:extract.mirt(model, "nitems"),
-  compute_SEs = FALSE,
   grid_size = 10000,
   return_grid = FALSE
 )
 }
 \arguments{
-\item{model}{An fitted mirt model object from the mirt package}
+\item{model}{An fitted mirt model object from the mirt package.}
 
-\item{thetas}{A one column matrix with theta scores. Typically returned from the mirt::fscores method.}
+\item{theta}{A vector or matrix with theta scores from which to compute bit scores. Typically the matrix returned from the mirt::fscores method. If a second column is present, it is assumed to be the standard errors of the theta scores and bit score standard errors are computed.}
 
 \item{items}{A numeric vector indicating which items to use for computation. By default, all items are used.}
-
-\item{compute_SEs}{A logical indicating whether to compute standard errors for the bit scores. Default is FALSE.}
 
 \item{grid_size}{An integer specifying the size of the theta grid used for bit score computation. A higher value leads to improved accuracy. Default is 10000.}
 
@@ -43,13 +40,12 @@ d <- matrix(rnorm(30, 0, 1))
 data <- simdata(a, d, 1000, itemtype = '2PL')
 # Fit the model and compute theta scores
 mirt_model <- mirt(data, 1)
-thetas <- fscores(mirt_model, full.scores.SE = FALSE)
 # Compute the bit scores
+thetas <- fscores(mirt_model, full.scores.SE = FALSE)
 bit <- bit_scores(mirt_model, thetas)
-hist(bit, main = 'Histogram of bit scores', xlab = 'Bits')
-# Compute the bit scores with associated MLE SEs
-bit <- bit_scores(mirt_model, thetas, compute_SEs=TRUE)
-plot(bit, main = 'Bit scores with MLE SEs', xlab = 'Bits', ylab = 'SEs', ylim = c(0, max(bit[, 2])))
+# Compute the bit scores with standard errors
+thetas <- fscores(mirt_model, method="ML", full.scores.SE = TRUE)
+bit_with_se <- bit_scores(mirt_model, thetas)
 }
 
 }

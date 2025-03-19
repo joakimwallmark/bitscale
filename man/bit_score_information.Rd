@@ -6,7 +6,7 @@
 \usage{
 bit_score_information(
   model,
-  thetas,
+  theta,
   item = NULL,
   bit_scale_items = 1:extract.mirt(model, "nitems")
 )
@@ -14,7 +14,7 @@ bit_score_information(
 \arguments{
 \item{model}{An fitted mirt model object from the mirt package}
 
-\item{thetas}{A one column matrix with theta scores. Typically returned from the mirt::fscores method.}
+\item{theta}{A vector or matrix with theta scores. Typically the matrix returned from the mirt::fscores method.}
 
 \item{item}{If provided, the information provided by the specified item is computed as opposed to all items.}
 
@@ -37,11 +37,11 @@ d <- matrix(rnorm(30, 0, 1))
 data <- simdata(a, d, 1000, itemtype = '2PL')
 # Fit the model and compute theta scores
 mirt_model <- mirt(data, 1)
-thetas <- fscores(mirt_model, full.scores.SE = FALSE)
+theta <- fscores(mirt_model, full.scores.SE = FALSE)
 # Compute the bit score test information
-test_info <- bit_score_information(mirt_model, thetas)
+test_info <- bit_score_information(mirt_model, theta)
 # Compute the bit score item information for item 3
-item_info <- bit_score_information(mirt_model, thetas, item = 3)
+item_info <- bit_score_information(mirt_model, theta, item = 3)
 }
 
 }

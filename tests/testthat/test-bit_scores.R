@@ -7,7 +7,7 @@ d <- matrix(rnorm(30, 0, 1))
 data <- simdata(a, d, 500, itemtype = "2PL")
 mirt_model <- mirt(data, 1)
 thetas <- fscores(mirt_model, full.scores.SE = FALSE)
-thetas <- as.matrix(thetas)
+thetas_se <- fscores(mirt_model, full.scores.SE = TRUE)
 
 test_that("bit_scores returns a numeric matrix with grid output", {
   result <- bit_scores(mirt_model, thetas, return_grid = TRUE)
@@ -24,7 +24,7 @@ test_that("bit_scores returns a numeric matrix for input thetas", {
 })
 
 test_that("bit_scores returns a numeric matrix with SEs", {
-  result <- bit_scores(mirt_model, thetas, return_grid = FALSE, compute_SEs = TRUE)
+  result <- bit_scores(mirt_model, thetas_se)
   expect_true(is.matrix(result))
   expect_equal(nrow(result), nrow(thetas))
   expect_equal(ncol(result), 2)

@@ -59,7 +59,7 @@ bit_plot_item <- function(
 
   bit_vals <- bit_scores(
     model = model,
-    thetas = matrix(thetas_to_plot, ncol = 1),
+    theta = matrix(thetas_to_plot, ncol = 1),
     items = bit_scale_items,
     grid_size = bit_grid_size,
     return_grid = FALSE
@@ -76,7 +76,7 @@ bit_plot_item <- function(
     )
 
     p <- ggplot(prob_df, aes(x = bit, y = probability, color = response)) +
-      geom_line(size = 1.1) +
+      geom_line(linewidth = 1.1) +
       scale_x_continuous(
         limits = range(prob_df$bit),
         expand = c(0, 0)
@@ -98,7 +98,7 @@ bit_plot_item <- function(
     )
 
     p <- ggplot(info_df, aes(x = bit, y = information)) +
-      geom_line(size = 1.1, color = "steelblue") +
+      geom_line(linewidth = 1.1, color = "steelblue") +
       scale_x_continuous(
         limits = range(info_df$bit),
         expand = c(0, 0)
