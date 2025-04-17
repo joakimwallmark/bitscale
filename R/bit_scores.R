@@ -72,8 +72,8 @@ bit_scores <- function(
   theta_grid <- setdiff(seq(-10, 10, length.out = grid_size), theta) |> # remove potential duplicates from grid
     c(theta) |> # merge with sample thetas
     sort()
-  theta_grid[1] <- -Inf
-  theta_grid[length(theta_grid)] <- Inf
+  theta_grid[1] <- -200
+  theta_grid[length(theta_grid)] <- 200
 
   bit_scores <- vector("numeric", length = length(theta_grid))
   for (item in items) {

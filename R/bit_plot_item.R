@@ -53,8 +53,8 @@ bit_plot_item <- function(
   }
 
   if (type != "info") {
-    thetas_to_plot[1] <- -Inf
-    thetas_to_plot[length(thetas_to_plot)] <- Inf
+    thetas_to_plot[1] <- -200
+    thetas_to_plot[length(thetas_to_plot)] <- 200
   }
 
   bit_vals <- bit_scores(
