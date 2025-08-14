@@ -68,6 +68,8 @@ bit_scores <- function(
   else {
     theta <- c(theta)
   }
+  theta[theta == -Inf] <- -200
+  theta[theta == Inf] <- 200
 
   theta_grid <- setdiff(seq(-10, 10, length.out = grid_size), theta) |> # remove potential duplicates from grid
     c(theta) |> # merge with sample thetas
