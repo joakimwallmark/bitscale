@@ -16,5 +16,3 @@ library(bitscale)
 ?bit_plot_item
 help(package = "bitscale")
 ```
-
-For more information about bit scales, refer to [Wallmark et. al. (2024)](https://arxiv.org/abs/2410.01480).
